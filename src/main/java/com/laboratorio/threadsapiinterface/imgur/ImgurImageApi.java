@@ -28,7 +28,7 @@ import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataWriter;
  * @author Rafael
  * @version 1.0
  * @created 03/09/2024
- * @updated 04/09/2024
+ * @updated 25/09/2024
  */
 public class ImgurImageApi {
     protected static final Logger log = LogManager.getLogger(ImgurImageApi.class);
@@ -43,7 +43,7 @@ public class ImgurImageApi {
     protected void logException(Exception e) {
         log.error("Error: " + e.getMessage());
         if (e.getCause() != null) {
-            log.error("Causa: " + e.getMessage());
+            log.error("Causa: " + e.getCause().getMessage());
         }
     }
     
