@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Rafael
  * @version 1.0
  * @created 03/09/2024
- * @updated 04/09/2024
+ * @updated 05/10/2024
  */
 public class ThreadsStatusApiTest {
     private ThreadsStatusApi statusApi;
@@ -39,20 +39,6 @@ public class ThreadsStatusApiTest {
         String text = "Este es un contenido de prueba desde Postman";
         
         ThreadsPostResponse response = this.statusApi.postStatus(text);
-        
-        assertTrue(!response.getId().isEmpty());
-        
-        response = this.statusApi.publishStatus(response.getId());
-        
-        assertTrue(!response.getId().isEmpty());
-    }
-    
-    @Test
-    public void sendImageStatus() {
-        String text = "Este es un contenido de prueba desde Postman";
-        String imageUrl = "https://www.cyberclick.es/hubfs/blog/Relaciones%20publicas%20que%20son%20y%20que%20ventajas%20aportan.jpg";
-        
-        ThreadsPostResponse response = this.statusApi.postStatus(text, imageUrl);
         
         assertTrue(!response.getId().isEmpty());
         

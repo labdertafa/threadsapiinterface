@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class ImgurImageApiTest {
     @Test
     public void uploadImage() throws Exception {
-        String imagePath = "C:\\Users\\rafa\\Pictures\\Formula_1\\Spa_1950.jpg";
+        String imagePath = "C:\\Users\\rafa\\Pictures\\Formula_1\\Monza_1950.jpg";
         String title = "Título de prueba";
         String description = "Descripción de prueba";
         

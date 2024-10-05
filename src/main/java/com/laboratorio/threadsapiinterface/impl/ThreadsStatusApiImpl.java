@@ -1,28 +1,23 @@
 package com.laboratorio.threadsapiinterface.impl;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
+import com.laboratorio.clientapilibrary.exceptions.ApiClientException;
+import com.laboratorio.clientapilibrary.model.ApiMethodType;
+import com.laboratorio.clientapilibrary.model.ApiRequest;
+import com.laboratorio.clientapilibrary.model.ApiResponse;
 import com.laboratorio.threadsapiinterface.ThreadsStatusApi;
-import com.laboratorio.threadsapiinterface.exception.ThreadsApiException;
 import com.laboratorio.threadsapiinterface.imgur.ImgurImageApi;
 import com.laboratorio.threadsapiinterface.imgur.model.ImgurImageUpload;
 import static com.laboratorio.threadsapiinterface.impl.ThreadsBaseApi.log;
 import com.laboratorio.threadsapiinterface.model.ThreadsPost;
 import com.laboratorio.threadsapiinterface.model.ThreadsPostResponse;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 
 /**
  *
  * @author Rafael
- * @version 1.0
+ * @version 1.1
  * @created 03/09/2024
- * @updated 04/09/2024
+ * @updated 05/10/2024
  */
 public class ThreadsStatusApiImpl extends ThreadsBaseApi implements ThreadsStatusApi {
     public ThreadsStatusApiImpl(String accessToken) {
@@ -31,47 +26,26 @@ public class ThreadsStatusApiImpl extends ThreadsBaseApi implements ThreadsStatu
 
     @Override
     public ThreadsPost retrievePost(String id) {
-        Client client = ClientBuilder.newClient();
-        Response response = null;
         int okStatus = Integer.parseInt(this.config.getProperty("retrievePost_ok_status"));
         
         try {
             String url = this.urlBase + "/" + id;
-            WebTarget target = client.target(url)
-                    .queryParam("fields", "id,media_product_type,media_type,media_url,permalink,owner,username,text,timestamp,shortcode,thumbnail_url,children,is_quote_post");
+            ApiRequest request = new ApiRequest(url, okStatus, ApiMethodType.GET);
+            request.addApiPathParam("fields", "id,media_product_type,media_type,media_url,permalink,owner,username,text,timestamp,shortcode,thumbnail_url,children,is_quote_post");
+            request.addApiHeader("Authorization", "Bearer " + this.accessToken);
             
-            response = target.request(MediaType.APPLICATION_JSON)
-                    .header(HttpHeaders.AUTHORIZATION, "Bearer " + this.accessToken)
-                    .get();
+            ApiResponse response = this.client.executeApiRequest(request);
             
-            String jsonStr = response.readEntity(String.class);
-            if (response.getStatus() != okStatus) {
-                log.error(String.format("Respuesta del error %d: %s", response.getStatus(), jsonStr));
-                String str = "Error ejecutando: " + url + ". Se obtuvo el código de error: " + response.getStatus();
-                throw new ThreadsApiException(ThreadsSessionApiImpl.class.getName(), str);
-            }
-            
-            log.debug("Se ejecutó la query: " + url);
-            log.info("Respuesta recibida: " + jsonStr);
-            
-            Gson gson = new Gson();
-            return gson.fromJson(jsonStr, ThreadsPost.class);
+            return this.gson.fromJson(response.getResponseStr(), ThreadsPost.class);
         } catch (JsonSyntaxException e) {
             logException(e);
             throw e;
-        } catch (ThreadsApiException e) {
+        } catch (ApiClientException e) {
             throw e;
-        } finally {
-            if (response != null) {
-                response.close();
-            }
-            client.close();
         }
     }
     
     private ThreadsPostResponse executePostStatus(String text, String imageUrl) {
-        Client client = ClientBuilder.newClient();
-        Response response = null;
         String endpoint = this.config.getProperty("post_endpoint");
         int okStatus = Integer.parseInt(this.config.getProperty("post_valor_ok"));
         String userId = this.config.getProperty("threads_user_id");
@@ -83,39 +57,22 @@ public class ThreadsStatusApiImpl extends ThreadsBaseApi implements ThreadsStatu
         
         try {
             String url = this.urlBase + "/" + userId + "/" + endpoint;
-            WebTarget target = client.target(url)
-                    .queryParam("text", text)
-                    .queryParam("media_type", mediaType);
+            ApiRequest request = new ApiRequest(url, okStatus, ApiMethodType.POST);
+            request.addApiPathParam("text", text);
+            request.addApiPathParam("media_type", mediaType);
             if (imageUrl != null) {
-                target = target.queryParam("image_url", imageUrl);
+                request.addApiPathParam("image_url", imageUrl);
             }
+            request.addApiPathParam("access_token", this.accessToken);
             
-            response = target.request(MediaType.APPLICATION_JSON)
-                    .header(HttpHeaders.AUTHORIZATION, "Bearer " + this.accessToken)
-                    .post(Entity.text(""));
+            ApiResponse response = this.client.executeApiRequest(request);
             
-            String jsonStr = response.readEntity(String.class);
-            if (response.getStatus() != okStatus) {
-                log.error(String.format("Respuesta del error %d: %s", response.getStatus(), jsonStr));
-                String str = "Error ejecutando: " + url + ". Se obtuvo el código de error: " + response.getStatus();
-                throw new ThreadsApiException(ThreadsSessionApiImpl.class.getName(), str);
-            }
-            
-            log.debug("Se ejecutó la query: " + url);
-            log.info("Respuesta recibida: " + jsonStr);
-            
-            Gson gson = new Gson();
-            return gson.fromJson(jsonStr, ThreadsPostResponse.class);
+            return this.gson.fromJson(response.getResponseStr(), ThreadsPostResponse.class);
         } catch (JsonSyntaxException e) {
             logException(e);
             throw e;
-        } catch (ThreadsApiException e) {
+        } catch (ApiClientException e) {
             throw e;
-        } finally {
-            if (response != null) {
-                response.close();
-            }
-            client.close();
         }
     }
 
@@ -132,7 +89,7 @@ public class ThreadsStatusApiImpl extends ThreadsBaseApi implements ThreadsStatu
             ImgurImageApi imageApi = new ImgurImageApi();
             ImgurImageUpload imageUpload = imageApi.uploadImage(imagePath, "N/A", "N/A");
             if (imageUpload.isSuccess()) {
-                log.info("La imagen se ha subido correctamente a Imgur: " + imageUpload.getData().getLink());
+                log.debug("La imagen se ha subido correctamente a Imgur: " + imageUpload.getData().getLink());
                 imageUrl = imageUpload.getData().getLink();
             }
         } catch (Exception e) {
@@ -145,44 +102,24 @@ public class ThreadsStatusApiImpl extends ThreadsBaseApi implements ThreadsStatu
 
     @Override
     public ThreadsPostResponse publishStatus(String id) {
-        Client client = ClientBuilder.newClient();
-        Response response = null;
         String endpoint = this.config.getProperty("publish_endpoint");
         int okStatus = Integer.parseInt(this.config.getProperty("publish_valor_ok"));
         String userId = this.config.getProperty("threads_user_id");
         
         try {
             String url = this.urlBase + "/" + userId + "/" + endpoint;
-            WebTarget target = client.target(url)
-                    .queryParam("creation_id", id);
+            ApiRequest request = new ApiRequest(url, okStatus, ApiMethodType.POST);
+            request.addApiPathParam("creation_id", id);
+            request.addApiPathParam("access_token", this.accessToken);
             
-            response = target.request(MediaType.APPLICATION_JSON)
-                    .header(HttpHeaders.AUTHORIZATION, "Bearer " + this.accessToken)
-                    .post(Entity.text(""));
-            
-            String jsonStr = response.readEntity(String.class);
-            if (response.getStatus() != okStatus) {
-                log.error(String.format("Respuesta del error %d: %s", response.getStatus(), jsonStr));
-                String str = "Error ejecutando: " + url + ". Se obtuvo el código de error: " + response.getStatus();
-                throw new ThreadsApiException(ThreadsSessionApiImpl.class.getName(), str);
-            }
-            
-            log.debug("Se ejecutó la query: " + url);
-            log.info("Respuesta recibida: " + jsonStr);
-            
-            Gson gson = new Gson();
-            return gson.fromJson(jsonStr, ThreadsPostResponse.class);
+            ApiResponse response = this.client.executeApiRequest(request);
+
+            return this.gson.fromJson(response.getResponseStr(), ThreadsPostResponse.class);
         } catch (JsonSyntaxException e) {
             logException(e);
             throw e;
-        } catch (ThreadsApiException e) {
+        } catch (ApiClientException e) {
             throw e;
-        } finally {
-            if (response != null) {
-                response.close();
-            }
-            client.close();
         }
-    }
-    
+    }    
 }

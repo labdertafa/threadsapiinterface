@@ -2,42 +2,37 @@ package com.laboratorio.threadsapiinterface.imgur;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
-import com.laboratorio.threadsapiinterface.imgur.exception.ImgurApiException;
+import com.laboratorio.clientapilibrary.ApiClient;
+import com.laboratorio.clientapilibrary.exceptions.ApiClientException;
+import com.laboratorio.clientapilibrary.model.ApiMethodType;
+import com.laboratorio.clientapilibrary.model.ApiRequest;
+import com.laboratorio.clientapilibrary.model.ApiResponse;
 import com.laboratorio.threadsapiinterface.imgur.model.ImgurImageUpload;
 import com.laboratorio.threadsapiinterface.imgur.model.ImgurTokenResponse;
 import com.laboratorio.threadsapiinterface.imgur.util.TokenManager;
 import com.laboratorio.threadsapiinterface.utils.ThreadsApiConfig;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jboss.resteasy.client.jaxrs.ResteasyClient;
-import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
-import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataOutput;
-import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataWriter;
 
 /**
  *
  * @author Rafael
- * @version 1.0
+ * @version 1.1
  * @created 03/09/2024
- * @updated 25/09/2024
+ * @updated 05/10/2024
  */
 public class ImgurImageApi {
     protected static final Logger log = LogManager.getLogger(ImgurImageApi.class);
+    protected final ApiClient client;
     private final ThreadsApiConfig config;
     private final String urlBase;
+    protected final Gson gson;
 
     public ImgurImageApi() {
+        this.client = new ApiClient();
         this.config = ThreadsApiConfig.getInstance();
         this.urlBase = this.config.getProperty("url_base_imgur");
+        this.gson = new Gson();
     }
     
     protected void logException(Exception e) {
@@ -48,8 +43,6 @@ public class ImgurImageApi {
     }
     
     public ImgurTokenResponse refreshToken(String accessToken, String refreshToken) {
-        ResteasyClient client = (ResteasyClient)ResteasyClientBuilder.newBuilder().build();
-        Response response = null;
         String endpoint = this.config.getProperty("imgur_token_endpoint");
         int okStatus = Integer.parseInt(this.config.getProperty("imgur_token_valor_ok"));
         String clientId = this.config.getProperty("imgur_app_client_id");
@@ -57,91 +50,49 @@ public class ImgurImageApi {
         
         try {
             String url = endpoint;
-            WebTarget target = client.target(url)
-                    .register(MultipartFormDataWriter.class);
+            ApiRequest request = new ApiRequest(url, okStatus, ApiMethodType.POST);
+            request.addTextFormData("refresh_token", refreshToken);
+            request.addTextFormData("client_id", clientId);
+            request.addTextFormData("client_secret", clientSecret);
+            request.addTextFormData("grant_type", "refresh_token");
+            // request.addApiPathParam("access_token", accessToken);
             
-            MultipartFormDataOutput formDataOutput = new MultipartFormDataOutput();
-            formDataOutput.addFormData("refresh_token", refreshToken, MediaType.TEXT_PLAIN_TYPE);
-            formDataOutput.addFormData("client_id", clientId, MediaType.TEXT_PLAIN_TYPE);
-            formDataOutput.addFormData("client_secret", clientSecret, MediaType.TEXT_PLAIN_TYPE);
-            formDataOutput.addFormData("grant_type", "refresh_token", MediaType.TEXT_PLAIN_TYPE);
-            
-            response = target.request()
-                    .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
-                    .post(Entity.entity(formDataOutput, MediaType.MULTIPART_FORM_DATA));
-            
-            String jsonStr = response.readEntity(String.class);
-            if (response.getStatus() != okStatus) {
-                log.error(String.format("Respuesta del error %d. Detalle: %s", response.getStatus(), jsonStr));
-                String str = "Error ejecutando: " + url + ". Se obtuvo el código de error: " + response.getStatus();
-                throw new ImgurApiException(ImgurImageApi.class.getName(), str);
-            }
-            
-            log.info("Se ejecutó la query: " + url);
-            log.info("Respuesta recibida: " + jsonStr);
-            
-            Gson gson = new Gson();
-            return gson.fromJson(jsonStr, ImgurTokenResponse.class);
+            ApiResponse response = this.client.executeApiRequest(request);
+
+            return this.gson.fromJson(response.getResponseStr(), ImgurTokenResponse.class);
         } catch (JsonSyntaxException e) {
             logException(e);
             throw  e;
-        } catch (ImgurApiException e) {
+        } catch (ApiClientException e) {
             throw  e;
-        } finally {
-            if (response != null) {
-                response.close();
-            }
-            client.close();
         }
     }
     
     public ImgurImageUpload uploadImage(String imagePath, String title, String description) throws Exception {
-        ResteasyClient client = (ResteasyClient)ResteasyClientBuilder.newBuilder().build();
-        Response response = null;
         String endpoint = this.config.getProperty("imageUpload_endpoint");
         int okStatus = Integer.parseInt(this.config.getProperty("imageUpload_valor_ok"));
         
         try {
             String accessToken = TokenManager.getImgurAccessToken();
+            log.info("Access token: " + accessToken);
             
             String url = this.urlBase + "/" + endpoint;
-            WebTarget target = client.target(url)
-                    .register(MultipartFormDataWriter.class);
+            log.info("URL: " + url);
+            ApiRequest request = new ApiRequest(url, okStatus, ApiMethodType.POST);
+            request.addFileFormData("image", imagePath);
+            request.addTextFormData("type", "image");
+            request.addTextFormData("title", title);
+            request.addTextFormData("description", description);
+            request.addApiHeader("Authorization", "Bearer " + accessToken);
             
-            MultipartFormDataOutput formDataOutput = new MultipartFormDataOutput();
-            File imageFile = new File(imagePath);
-            InputStream fileStream = new FileInputStream(imageFile);
-            formDataOutput.addFormData("image", fileStream, MediaType.APPLICATION_OCTET_STREAM_TYPE, imageFile.getName());
-            formDataOutput.addFormData("type", "image", MediaType.TEXT_PLAIN_TYPE);
-            formDataOutput.addFormData("title", title, MediaType.TEXT_PLAIN_TYPE);
-            formDataOutput.addFormData("description", description, MediaType.TEXT_PLAIN_TYPE);
+            ApiResponse response = this.client.executeApiRequest(request);
             
-            response = target.request()
-                    .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
-                    .post(Entity.entity(formDataOutput, MediaType.MULTIPART_FORM_DATA));
-            
-            String jsonStr = response.readEntity(String.class);
-            if (response.getStatus() != okStatus) {
-                log.error(String.format("Respuesta del error %d. Detalle: %s", response.getStatus(), jsonStr));
-                String str = "Error ejecutando: " + url + ". Se obtuvo el código de error: " + response.getStatus();
-                throw new ImgurApiException(ImgurImageApi.class.getName(), str);
-            }
-            
-            log.debug("Se ejecutó la query: " + url);
-            log.debug("Respuesta recibida: " + jsonStr);
-            
-            Gson gson = new Gson();
-            return gson.fromJson(jsonStr, ImgurImageUpload.class);
-        } catch (JsonSyntaxException | FileNotFoundException e) {
+            return this.gson.fromJson(response.getResponseStr(), ImgurImageUpload.class);
+        } catch (JsonSyntaxException e) {
             logException(e);
             throw  e;
-        } catch (ImgurApiException e) {
+        } catch (ApiClientException e) {
             throw  e;
-        } finally {
-            if (response != null) {
-                response.close();
-            }
-            client.close();
         }
     }
 }
