@@ -9,15 +9,15 @@ import com.laboratorio.threadsapiinterface.ThreadsStatusApi;
 import com.laboratorio.threadsapiinterface.imgur.ImgurImageApi;
 import com.laboratorio.threadsapiinterface.imgur.model.ImgurImageUpload;
 import static com.laboratorio.threadsapiinterface.impl.ThreadsBaseApi.log;
-import com.laboratorio.threadsapiinterface.model.ThreadsPost;
+import com.laboratorio.threadsapiinterface.model.ThreadsStatus;
 import com.laboratorio.threadsapiinterface.model.ThreadsPostResponse;
 
 /**
  *
  * @author Rafael
- * @version 1.1
+ * @version 1.2
  * @created 03/09/2024
- * @updated 05/10/2024
+ * @updated 17/10/2024
  */
 public class ThreadsStatusApiImpl extends ThreadsBaseApi implements ThreadsStatusApi {
     public ThreadsStatusApiImpl(String accessToken) {
@@ -25,7 +25,7 @@ public class ThreadsStatusApiImpl extends ThreadsBaseApi implements ThreadsStatu
     }
 
     @Override
-    public ThreadsPost retrievePost(String id) {
+    public ThreadsStatus retrievePost(String id) {
         int okStatus = Integer.parseInt(this.config.getProperty("retrievePost_ok_status"));
         
         try {
@@ -36,7 +36,7 @@ public class ThreadsStatusApiImpl extends ThreadsBaseApi implements ThreadsStatu
             
             ApiResponse response = this.client.executeApiRequest(request);
             
-            return this.gson.fromJson(response.getResponseStr(), ThreadsPost.class);
+            return this.gson.fromJson(response.getResponseStr(), ThreadsStatus.class);
         } catch (JsonSyntaxException e) {
             logException(e);
             throw e;
@@ -76,13 +76,11 @@ public class ThreadsStatusApiImpl extends ThreadsBaseApi implements ThreadsStatu
         }
     }
 
-    @Override
-    public ThreadsPostResponse postStatus(String text) {
+    private ThreadsPostResponse uploadStatus(String text) {
         return this.executePostStatus(text, null);
     }
 
-    @Override
-    public ThreadsPostResponse postStatus(String text, String imagePath) {
+    private ThreadsPostResponse uploadStatus(String text, String imagePath) {
         String imageUrl = null;
         
         try {
@@ -122,4 +120,28 @@ public class ThreadsStatusApiImpl extends ThreadsBaseApi implements ThreadsStatu
             throw e;
         }
     }    
+
+    @Override
+    public ThreadsStatus postStatus(String text) {
+        return postStatus(text, null);
+    }
+
+    @Override
+    public ThreadsStatus postStatus(String text, String imagePath) {
+        ThreadsPostResponse response1;
+        if (imagePath == null) {
+            response1 = this.uploadStatus(text);
+        } else { 
+            response1 = this.uploadStatus(text, imagePath);
+        }
+        
+        ThreadsPostResponse response2 = this.publishStatus(response1.getId());
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            log.warn("No se pudo completar la pausa despues de efectuar el post");
+        }
+        
+        return this.retrievePost(response2.getId());
+    }
 }

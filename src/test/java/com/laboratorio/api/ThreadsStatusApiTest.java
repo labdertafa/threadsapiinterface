@@ -2,8 +2,7 @@ package com.laboratorio.api;
 
 import com.laboratorio.threadsapiinterface.ThreadsStatusApi;
 import com.laboratorio.threadsapiinterface.impl.ThreadsStatusApiImpl;
-import com.laboratorio.threadsapiinterface.model.ThreadsPost;
-import com.laboratorio.threadsapiinterface.model.ThreadsPostResponse;
+import com.laboratorio.threadsapiinterface.model.ThreadsStatus;
 import com.laboratorio.threadsapiinterface.utils.ThreadsApiConfig;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -12,9 +11,9 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  *
  * @author Rafael
- * @version 1.0
+ * @version 1.1
  * @created 03/09/2024
- * @updated 05/10/2024
+ * @updated 17/10/2024
  */
 public class ThreadsStatusApiTest {
     private ThreadsStatusApi statusApi;
@@ -29,7 +28,7 @@ public class ThreadsStatusApiTest {
     public void retrievePost() {
         String id = "17917637687877200";
         
-        ThreadsPost post = this.statusApi.retrievePost(id);
+        ThreadsStatus post = this.statusApi.retrievePost(id);
         
         assertEquals(id, post.getId());
     }
@@ -38,13 +37,9 @@ public class ThreadsStatusApiTest {
     public void sendTextStatus() {
         String text = "Este es un contenido de prueba desde Postman";
         
-        ThreadsPostResponse response = this.statusApi.postStatus(text);
+        ThreadsStatus status  = this.statusApi.postStatus(text);
         
-        assertTrue(!response.getId().isEmpty());
-        
-        response = this.statusApi.publishStatus(response.getId());
-        
-        assertTrue(!response.getId().isEmpty());
+        assertTrue(!status.getId().isEmpty());
     }
     
     @Test
@@ -52,12 +47,8 @@ public class ThreadsStatusApiTest {
         String text = "Este es un contenido de prueba desde Postman";
         String imagePath = "C:\\Users\\rafa\\Pictures\\Formula_1\\Spa_1950.jpg";
         
-        ThreadsPostResponse response = this.statusApi.postStatus(text, imagePath);
+        ThreadsStatus status  = this.statusApi.postStatus(text, imagePath);
         
-        assertTrue(!response.getId().isEmpty());
-        
-        response = this.statusApi.publishStatus(response.getId());
-        
-        assertTrue(!response.getId().isEmpty());
+        assertTrue(!status.getId().isEmpty());
     }
 }

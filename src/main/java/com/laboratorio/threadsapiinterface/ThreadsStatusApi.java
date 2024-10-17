@@ -1,20 +1,20 @@
 package com.laboratorio.threadsapiinterface;
 
-import com.laboratorio.threadsapiinterface.model.ThreadsPost;
+import com.laboratorio.threadsapiinterface.model.ThreadsStatus;
 import com.laboratorio.threadsapiinterface.model.ThreadsPostResponse;
 
 /**
  *
  * @author Rafael
- * @version 1.0
+ * @version 1.1
  * @created 03/09/2024
- * @updated 03/09/2024
+ * @updated 17/10/2024
  */
 public interface ThreadsStatusApi {
-    ThreadsPost retrievePost(String id);
+    ThreadsStatus retrievePost(String id);
             
-    ThreadsPostResponse postStatus(String text);
-    ThreadsPostResponse postStatus(String text, String imagePath);
+    ThreadsStatus postStatus(String text);
+    ThreadsStatus postStatus(String text, String imagePath);
     
     ThreadsPostResponse publishStatus(String id);
 }

@@ -10,11 +10,11 @@ import lombok.Setter;
  * @author Rafael
  * @version 1.0
  * @created 03/09/2024
- * @updated 03/09/2024
+ * @updated 17/10/2024
  */
 
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor
-public class ThreadsPost {
+public class ThreadsStatus {
     private String id;
     private String media_product_type;
     private String media_type;
