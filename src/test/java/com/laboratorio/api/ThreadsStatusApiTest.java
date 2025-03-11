@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Rafael
  * @version 1.1
  * @created 03/09/2024
- * @updated 17/10/2024
+ * @updated 11/03/2025
  */
 public class ThreadsStatusApiTest {
     private ThreadsStatusApi statusApi;
@@ -21,7 +21,8 @@ public class ThreadsStatusApiTest {
     @BeforeEach
     public void initTest() {
         String accessToken = ThreadsApiConfig.getInstance().getProperty("test_access_token");
-        this.statusApi = new ThreadsStatusApiImpl(accessToken);
+        String threads_user_id = "26835929882687714";
+        this.statusApi = new ThreadsStatusApiImpl(accessToken, threads_user_id);
     }
     
     @Test

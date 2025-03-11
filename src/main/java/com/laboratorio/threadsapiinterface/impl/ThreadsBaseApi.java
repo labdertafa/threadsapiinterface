@@ -9,21 +9,23 @@ import org.apache.logging.log4j.Logger;
 /**
  *
  * @author Rafael
- * @version 1.1
+ * @version 1.2
  * @created 03/09/2024
- * @updated 05/10/2024
+ * @updated 11/03/2025
  */
 public class ThreadsBaseApi {
     protected static final Logger log = LogManager.getLogger(ThreadsBaseApi.class);
     protected final ApiClient client;
     protected final String accessToken;
+    protected final String userId;
     protected final ThreadsApiConfig config;
     protected final String urlBase;
     protected final Gson gson;
 
-    public ThreadsBaseApi(String accessToken) {
+    public ThreadsBaseApi(String accessToken, String userId) {
         this.client = new ApiClient();
         this.accessToken = accessToken;
+        this.userId = userId;
         this.config = ThreadsApiConfig.getInstance();
         this.urlBase = this.config.getProperty("url_base_threads");
         this.gson = new Gson();

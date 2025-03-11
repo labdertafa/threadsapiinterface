@@ -13,11 +13,11 @@ import com.laboratorio.threadsapiinterface.model.ThreadsSessionResponse;
  * @author Rafael
  * @version 1.1
  * @created 03/09/2024
- * @updated 05/10/2024
+ * @updated 11/03/2025
  */
 public class ThreadsSessionApiImpl extends ThreadsBaseApi implements ThreadsSessionApi {
     public ThreadsSessionApiImpl(String accessToken) {
-        super(accessToken);
+        super(accessToken, "");
     }
     
     @Override

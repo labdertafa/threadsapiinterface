@@ -15,13 +15,13 @@ import com.laboratorio.threadsapiinterface.model.ThreadsPostResponse;
 /**
  *
  * @author Rafael
- * @version 1.2
+ * @version 1.3
  * @created 03/09/2024
- * @updated 17/10/2024
+ * @updated 11/03/2025
  */
 public class ThreadsStatusApiImpl extends ThreadsBaseApi implements ThreadsStatusApi {
-    public ThreadsStatusApiImpl(String accessToken) {
-        super(accessToken);
+    public ThreadsStatusApiImpl(String accessToken, String userId) {
+        super(accessToken, userId);
     }
 
     @Override
@@ -48,7 +48,6 @@ public class ThreadsStatusApiImpl extends ThreadsBaseApi implements ThreadsStatu
     private ThreadsPostResponse executePostStatus(String text, String imageUrl) {
         String endpoint = this.config.getProperty("post_endpoint");
         int okStatus = Integer.parseInt(this.config.getProperty("post_valor_ok"));
-        String userId = this.config.getProperty("threads_user_id");
         String mediaType = "TEXT";
         
         if (imageUrl != null) {
@@ -56,7 +55,7 @@ public class ThreadsStatusApiImpl extends ThreadsBaseApi implements ThreadsStatu
         }
         
         try {
-            String url = this.urlBase + "/" + userId + "/" + endpoint;
+            String url = this.urlBase + "/" + this.userId + "/" + endpoint;
             ApiRequest request = new ApiRequest(url, okStatus, ApiMethodType.POST);
             request.addApiPathParam("text", text);
             request.addApiPathParam("media_type", mediaType);
@@ -102,10 +101,9 @@ public class ThreadsStatusApiImpl extends ThreadsBaseApi implements ThreadsStatu
     public ThreadsPostResponse publishStatus(String id) {
         String endpoint = this.config.getProperty("publish_endpoint");
         int okStatus = Integer.parseInt(this.config.getProperty("publish_valor_ok"));
-        String userId = this.config.getProperty("threads_user_id");
         
         try {
-            String url = this.urlBase + "/" + userId + "/" + endpoint;
+            String url = this.urlBase + "/" + this.userId + "/" + endpoint;
             ApiRequest request = new ApiRequest(url, okStatus, ApiMethodType.POST);
             request.addApiPathParam("creation_id", id);
             request.addApiPathParam("access_token", this.accessToken);
