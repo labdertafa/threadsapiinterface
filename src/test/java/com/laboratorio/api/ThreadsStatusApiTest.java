@@ -1,9 +1,9 @@
 package com.laboratorio.api;
 
+import com.laboratorio.clientapilibrary.utils.ReaderConfig;
 import com.laboratorio.threadsapiinterface.ThreadsStatusApi;
 import com.laboratorio.threadsapiinterface.impl.ThreadsStatusApiImpl;
 import com.laboratorio.threadsapiinterface.model.ThreadsStatus;
-import com.laboratorio.threadsapiinterface.utils.ThreadsApiConfig;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
@@ -13,14 +13,15 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Rafael
  * @version 1.1
  * @created 03/09/2024
- * @updated 11/03/2025
+ * @updated 04/05/2025
  */
 public class ThreadsStatusApiTest {
     private ThreadsStatusApi statusApi;
     
     @BeforeEach
     public void initTest() {
-        String accessToken = ThreadsApiConfig.getInstance().getProperty("test_access_token");
+        ReaderConfig config = new ReaderConfig("config//threads_api.properties");
+        String accessToken = config.getProperty("test_access_token");
         String threads_user_id = "26835929882687714";
         this.statusApi = new ThreadsStatusApiImpl(accessToken, threads_user_id);
     }
