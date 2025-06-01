@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Rafael
  * @version 1.0
  * @created 03/09/2024
- * @updated 04/05/2024
+ * @updated 01/05/2024
  */
 public class ThreadsSessionApiTest {
     private ThreadsSessionApi sessionApi;
@@ -44,9 +44,6 @@ public class ThreadsSessionApiTest {
         String token = "THQWJWR01Od0dmOHBVWktyaWVIZAF9RNWo0OWc4WFk2amE0SHhERlZA5c3FUdjZACUnZAIamZAtcU5ZAZAUt5a2p6MWt4MDFCNlVvWnpJYkpWb2RSankzMDJxTWpVSmtIcjlVbklIOFpMVU1pcVhzODdpMUFQZAXKHDKJHKADHAD";
         this.sessionApi = new ThreadsSessionApiImpl(token);
         
-        assertThrows(ApiClientException.class, () -> {
-            this.sessionApi.refreshSession();
-        });
-        
+        assertThrows(ApiClientException.class, () -> this.sessionApi.refreshSession());
     }
 }

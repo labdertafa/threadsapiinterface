@@ -11,7 +11,7 @@ import org.apache.logging.log4j.Logger;
  * @author Rafael
  * @version 1.2
  * @created 03/09/2024
- * @updated 04/05/2025
+ * @updated 01/05/2025
  */
 public class ThreadsBaseApi {
     protected static final Logger log = LogManager.getLogger(ThreadsBaseApi.class);
@@ -32,9 +32,9 @@ public class ThreadsBaseApi {
     }
     
     protected void logException(Exception e) {
-        log.error("Error: " + e.getMessage());
+        log.error("Error: {}", e.getMessage());
         if (e.getCause() != null) {
-            log.error("Causa: " + e.getCause().getMessage());
+            log.error("Causa: {}", e.getCause().getMessage());
         }
     }
 }

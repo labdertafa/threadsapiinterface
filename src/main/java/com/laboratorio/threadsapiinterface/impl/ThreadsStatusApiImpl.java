@@ -6,6 +6,7 @@ import com.laboratorio.clientapilibrary.model.ApiMethodType;
 import com.laboratorio.clientapilibrary.model.ApiRequest;
 import com.laboratorio.clientapilibrary.model.ApiResponse;
 import com.laboratorio.threadsapiinterface.ThreadsStatusApi;
+import com.laboratorio.threadsapiinterface.exception.ThreadsApiException;
 import com.laboratorio.threadsapiinterface.imgur.ImgurImageApi;
 import com.laboratorio.threadsapiinterface.imgur.model.ImgurImageUpload;
 import static com.laboratorio.threadsapiinterface.impl.ThreadsBaseApi.log;
@@ -15,9 +16,9 @@ import com.laboratorio.threadsapiinterface.model.ThreadsPostResponse;
 /**
  *
  * @author Rafael
- * @version 1.3
+ * @version 1.4
  * @created 03/09/2024
- * @updated 11/03/2025
+ * @updated 01/05/2025
  */
 public class ThreadsStatusApiImpl extends ThreadsBaseApi implements ThreadsStatusApi {
     public ThreadsStatusApiImpl(String accessToken, String userId) {
@@ -35,6 +36,7 @@ public class ThreadsStatusApiImpl extends ThreadsBaseApi implements ThreadsStatu
             request.addApiHeader("Authorization", "Bearer " + this.accessToken);
             
             ApiResponse response = this.client.executeApiRequest(request);
+            log.debug("Retrieve post response: {}", response.getResponseStr());
             
             return this.gson.fromJson(response.getResponseStr(), ThreadsStatus.class);
         } catch (JsonSyntaxException e) {
@@ -42,6 +44,8 @@ public class ThreadsStatusApiImpl extends ThreadsBaseApi implements ThreadsStatu
             throw e;
         } catch (ApiClientException e) {
             throw e;
+        } catch (Exception e) {
+            throw new ThreadsApiException(ThreadsSessionApiImpl.class.getName(), "No se pudo recuperar el post de Threads", e);
         }
     }
     
@@ -65,6 +69,7 @@ public class ThreadsStatusApiImpl extends ThreadsBaseApi implements ThreadsStatu
             request.addApiPathParam("access_token", this.accessToken);
             
             ApiResponse response = this.client.executeApiRequest(request);
+            log.debug("Add Status response: {}", response.getResponseStr());
             
             return this.gson.fromJson(response.getResponseStr(), ThreadsPostResponse.class);
         } catch (JsonSyntaxException e) {
@@ -72,6 +77,8 @@ public class ThreadsStatusApiImpl extends ThreadsBaseApi implements ThreadsStatu
             throw e;
         } catch (ApiClientException e) {
             throw e;
+        } catch (Exception e) {
+            throw new ThreadsApiException(ThreadsSessionApiImpl.class.getName(), "No se pudo agregar un estado en Threads", e);
         }
     }
 
@@ -109,6 +116,7 @@ public class ThreadsStatusApiImpl extends ThreadsBaseApi implements ThreadsStatu
             request.addApiPathParam("access_token", this.accessToken);
             
             ApiResponse response = this.client.executeApiRequest(request);
+            log.debug("Publish Status response: {}", response.getResponseStr());
 
             return this.gson.fromJson(response.getResponseStr(), ThreadsPostResponse.class);
         } catch (JsonSyntaxException e) {
@@ -116,6 +124,8 @@ public class ThreadsStatusApiImpl extends ThreadsBaseApi implements ThreadsStatu
             throw e;
         } catch (ApiClientException e) {
             throw e;
+        } catch (Exception e) {
+            throw new ThreadsApiException(ThreadsSessionApiImpl.class.getName(), "No se pudo publicar un estado en Threads", e);
         }
     }    
 
