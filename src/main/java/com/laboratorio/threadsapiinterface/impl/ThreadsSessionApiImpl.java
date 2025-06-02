@@ -1,7 +1,5 @@
 package com.laboratorio.threadsapiinterface.impl;
 
-import com.google.gson.JsonSyntaxException;
-import com.laboratorio.clientapilibrary.exceptions.ApiClientException;
 import com.laboratorio.clientapilibrary.model.ApiMethodType;
 import com.laboratorio.clientapilibrary.model.ApiRequest;
 import com.laboratorio.clientapilibrary.model.ApiResponse;
@@ -14,7 +12,7 @@ import com.laboratorio.threadsapiinterface.model.ThreadsSessionResponse;
  * @author Rafael
  * @version 1.1
  * @created 03/09/2024
- * @updated 01/05/2025
+ * @updated 02/05/2025
  */
 public class ThreadsSessionApiImpl extends ThreadsBaseApi implements ThreadsSessionApi {
     public ThreadsSessionApiImpl(String accessToken) {
@@ -38,13 +36,8 @@ public class ThreadsSessionApiImpl extends ThreadsBaseApi implements ThreadsSess
             ApiResponse response = this.client.executeApiRequest(request);
 
             return this.gson.fromJson(response.getResponseStr(), ThreadsSessionResponse.class);
-        } catch (JsonSyntaxException e) {
-            logException(e);
-            throw e;
-        } catch (ApiClientException e) {
-            throw e;
         } catch (Exception e) {
-            throw new ThreadsApiException(ThreadsSessionApiImpl.class.getName(), "No se pudo intercambiar el token Threads", e);
+            throw new ThreadsApiException("No se pudo intercambiar el token Threads", e);
         }
     }
 
@@ -65,13 +58,8 @@ public class ThreadsSessionApiImpl extends ThreadsBaseApi implements ThreadsSess
             log.debug("Response: {}", response.getResponseStr());
 
             return this.gson.fromJson(response.getResponseStr(), ThreadsSessionResponse.class);
-        } catch (JsonSyntaxException e) {
-            logException(e);
-            throw e;
-        } catch (ApiClientException e) {
-            throw e;
         } catch (Exception e) {
-            throw new ThreadsApiException(ThreadsSessionApiImpl.class.getName(), "No se pudo renovar el token Threads", e);
+            throw new ThreadsApiException("No se pudo renovar el token Threads", e);
         }
     }
 }
