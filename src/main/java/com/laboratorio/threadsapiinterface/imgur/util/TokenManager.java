@@ -15,32 +15,38 @@ import org.apache.logging.log4j.Logger;
 /**
  *
  * @author Rafael
- * @version 1.0
+ * @version 1.1
  * @created 03/09/2024
- * @updated 04/05/2024
+ * @updated 14/12/2025
  */
 public class TokenManager {
     protected static final Logger log = LogManager.getLogger(TokenManager.class);
+
+    private TokenManager() {
+    }
     
     public static boolean saveTokenInfo(ImgurTokenInfo info) throws Exception {
         ReaderConfig config = new ReaderConfig("config//threads_api.properties");
         String file = config.getProperty("imgur_token_file");
 
-        FileOutputStream fos = new FileOutputStream(file);
-        ObjectOutputStream oos = new ObjectOutputStream(fos);
-        oos.writeObject(info);
-        
-        return true;
+        try (FileOutputStream fos = new FileOutputStream(file)) {
+            try (ObjectOutputStream oos = new ObjectOutputStream(fos)) {
+                oos.writeObject(info);
+
+                return true;
+            }
+        }
     }
     
     public static ImgurTokenInfo loadTokenInfo() throws Exception {
         ReaderConfig config = new ReaderConfig("config//threads_api.properties");
         String file = config.getProperty("imgur_token_file");
         
-        FileInputStream fis = new FileInputStream(file);
-        ObjectInputStream ois = new ObjectInputStream(fis);
-
-        return (ImgurTokenInfo)ois.readObject();
+        try (FileInputStream fis = new FileInputStream(file)) {
+            try (ObjectInputStream ois = new ObjectInputStream(fis)) {
+                return (ImgurTokenInfo)ois.readObject();
+            }
+        }
     }
     
     public static String getImgurAccessToken() {
@@ -48,18 +54,18 @@ public class TokenManager {
             ImgurTokenInfo tokenInfo = loadTokenInfo();
             // Se verifica la validez del token
             if (tokenInfo.getExpirationDate().isAfter(LocalDateTime.now().plusSeconds(120))) {
-                return tokenInfo.getAccess_token();
+                return tokenInfo.getAccessToken();
             }
             
             // Se pide un nuevo token
             ImgurImageApi imageApi = new ImgurImageApi();
-            ImgurTokenResponse response = imageApi.refreshToken(tokenInfo.getAccess_token(), tokenInfo.getRefresh_token());
+            ImgurTokenResponse response = imageApi.refreshToken(tokenInfo.getRefreshToken());
             
             // Se almacena el nuevo token
             ImgurTokenInfo newTokenInfo = new ImgurTokenInfo(response);
             saveTokenInfo(newTokenInfo);
             
-            return newTokenInfo.getAccess_token();
+            return newTokenInfo.getAccessToken();
         } catch (Exception e) {
             throw new ImgurApiException(TokenManager.class.getName(), "Error obteniendo un access token válido de Imgur");
         }

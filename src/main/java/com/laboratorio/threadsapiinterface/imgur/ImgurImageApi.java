@@ -17,9 +17,9 @@ import org.apache.logging.log4j.Logger;
 /**
  *
  * @author Rafael
- * @version 1.1
+ * @version 1.2
  * @created 03/09/2024
- * @updated 04/05/2025
+ * @updated 14/12/2025
  */
 public class ImgurImageApi {
     protected static final Logger log = LogManager.getLogger(ImgurImageApi.class);
@@ -42,7 +42,7 @@ public class ImgurImageApi {
         }
     }
     
-    public ImgurTokenResponse refreshToken(String accessToken, String refreshToken) {
+    public ImgurTokenResponse refreshToken(String refreshToken) {
         String endpoint = this.config.getProperty("imgur_token_endpoint");
         int okStatus = Integer.parseInt(this.config.getProperty("imgur_token_valor_ok"));
         String clientId = this.config.getProperty("imgur_app_client_id");

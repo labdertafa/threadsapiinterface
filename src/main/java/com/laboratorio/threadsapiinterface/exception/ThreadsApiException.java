@@ -3,15 +3,16 @@ package com.laboratorio.threadsapiinterface.exception;
 /**
  *
  * @author Rafael
- * @version 1.1
+ * @version 1.2
  * @created 10/07/2024
- * @updated 02/05/2025
+ * @updated 14/12/2025
  */
 public class ThreadsApiException extends RuntimeException {
-    private Throwable causaOriginal = null;
+    private final Throwable causaOriginal;
     
     public ThreadsApiException(String message) {
         super(message);
+        this.causaOriginal = null;
     }
     
     public ThreadsApiException(String message, Throwable causaOriginal) {

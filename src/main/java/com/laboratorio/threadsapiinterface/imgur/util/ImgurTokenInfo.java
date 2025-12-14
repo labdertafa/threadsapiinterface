@@ -10,22 +10,22 @@ import lombok.Setter;
 /**
  *
  * @author Rafael
- * @version 1.0
+ * @version 1.1
  * @created 04/09/2024
- * @updated 04/09/2024
+ * @updated 14/12/2025
  */
 
 @Getter @Setter @AllArgsConstructor
 public class ImgurTokenInfo implements Serializable {
-    private String access_token;
+    private String accessToken;
     private LocalDateTime expirationDate;
     private String bearer;
-    private String refresh_token;
+    private String refreshToken;
 
     public ImgurTokenInfo(ImgurTokenResponse response) {
-        this.access_token = response.getAccess_token();
+        this.accessToken = response.getAccess_token();
         this.expirationDate = LocalDateTime.now().plusSeconds(response.getExpires_in());
         this.bearer = response.getBearer();
-        this.refresh_token = response.getRefresh_token();
+        this.refreshToken = response.getRefresh_token();
     }
 }
