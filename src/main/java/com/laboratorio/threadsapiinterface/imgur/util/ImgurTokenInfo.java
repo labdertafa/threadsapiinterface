@@ -10,13 +10,15 @@ import lombok.Setter;
 /**
  *
  * @author Rafael
- * @version 1.1
+ * @version 1.2
  * @created 04/09/2024
- * @updated 14/12/2025
+ * @updated 30/12/2025
  */
 
 @Getter @Setter @AllArgsConstructor
 public class ImgurTokenInfo implements Serializable {
+    private static final long serialVersionUID = 4730417404333203599L;
+    
     private String accessToken;
     private LocalDateTime expirationDate;
     private String bearer;

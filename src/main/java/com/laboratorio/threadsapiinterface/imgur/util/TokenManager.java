@@ -4,6 +4,7 @@ import com.laboratorio.clientapilibrary.utils.ReaderConfig;
 import com.laboratorio.threadsapiinterface.imgur.ImgurImageApi;
 import com.laboratorio.threadsapiinterface.imgur.exception.ImgurApiException;
 import com.laboratorio.threadsapiinterface.imgur.model.ImgurTokenResponse;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
@@ -15,9 +16,9 @@ import org.apache.logging.log4j.Logger;
 /**
  *
  * @author Rafael
- * @version 1.1
+ * @version 1.2
  * @created 03/09/2024
- * @updated 14/12/2025
+ * @updated 30/12/2025
  */
 public class TokenManager {
     protected static final Logger log = LogManager.getLogger(TokenManager.class);
@@ -26,7 +27,7 @@ public class TokenManager {
     }
     
     public static boolean saveTokenInfo(ImgurTokenInfo info) throws Exception {
-        ReaderConfig config = new ReaderConfig("config//threads_api.properties");
+        ReaderConfig config = new ReaderConfig("config" + File.separator + "threads_api.properties");
         String file = config.getProperty("imgur_token_file");
 
         try (FileOutputStream fos = new FileOutputStream(file)) {
@@ -39,7 +40,7 @@ public class TokenManager {
     }
     
     public static ImgurTokenInfo loadTokenInfo() throws Exception {
-        ReaderConfig config = new ReaderConfig("config//threads_api.properties");
+        ReaderConfig config = new ReaderConfig("config" + File.separator + "threads_api.properties");
         String file = config.getProperty("imgur_token_file");
         
         try (FileInputStream fis = new FileInputStream(file)) {
